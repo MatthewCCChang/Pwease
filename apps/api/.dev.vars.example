@@ -1,0 +1,15 @@
+# Optional for the skeleton. The health route requires none of these.
+# Copy to .dev.vars when you begin implementing integrations; never commit real values.
+DATABASE_URL=
+BETTER_AUTH_SECRET=
+BETTER_AUTH_URL=http://localhost:8787
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+APPLE_CLIENT_ID=
+APPLE_APP_BUNDLE_IDENTIFIER=
+APPLE_TEAM_ID=
+APPLE_KEY_ID=
+APPLE_PRIVATE_KEY=
+# R2 is a Worker binding named PROOF_IMAGES, not a mobile environment variable.
+# Configure its bucket in wrangler.jsonc when needed; account keys are not needed
+# for the planned Worker-binding upload flow.

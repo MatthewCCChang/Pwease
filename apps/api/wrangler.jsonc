@@ -1,0 +1,11 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "pwease-api",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-09-30",
+  "compatibility_flags": ["nodejs_compat"],
+  "vars": { "APP_ENV": "development" },
+  "observability": { "enabled": true }
+  // Add an R2 binding only when a real bucket has been provisioned:
+  // "r2_buckets": [{ "binding": "PROOF_IMAGES", "bucket_name": "your-private-bucket" }]
+}

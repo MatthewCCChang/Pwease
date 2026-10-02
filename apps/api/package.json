@@ -1,0 +1,27 @@
+{
+  "name": "@pwease/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev --ip 0.0.0.0 --port 8787",
+    "build": "wrangler deploy --dry-run --outdir dist",
+    "typecheck": "tsc --noEmit",
+    "test": "node --import tsx --test test/app.test.ts",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "1.1.0",
+    "@pwease/shared": "*",
+    "drizzle-orm": "0.45.3",
+    "hono": "4.13.12"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "5.20261001.1",
+    "@types/node": "^24.0.0",
+    "drizzle-kit": "0.31.11",
+    "tsx": "^4.20.0",
+    "wrangler": "4.145.0"
+  }
+}
