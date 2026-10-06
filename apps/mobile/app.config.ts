@@ -9,8 +9,8 @@ const config: ExpoConfig = {
   userInterfaceStyle: 'light',
   backgroundColor: '#FAF7F1',
   // Development placeholders. Choose permanent unique identifiers before signing builds.
-  ios: { supportsTablet: true, bundleIdentifier: 'dev.pwease.app' },
-  android: { package: 'dev.pwease.app' },
+  ios: { supportsTablet: true, bundleIdentifier: 'com.pwease' },
+  android: { package: 'com.pwease' },
   plugins: [
     'expo-router',
     'expo-secure-store',
