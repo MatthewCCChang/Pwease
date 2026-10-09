@@ -5,8 +5,14 @@ import type { ApiEnvironment } from './env';
 import { healthRoutes } from './routes/health';
 import { authRoutes } from './auth';
 import { businessRoutes } from './routes/business';
+import { cors } from 'hono/cors';
 
 export const app = new Hono<ApiEnvironment>();
+
+app.use('api/*', cors({
+  origin: "http://localhost:8081",
+  credentials: true,
+}))
 
 app.route('/api', healthRoutes);
 app.route('/api/auth', authRoutes);

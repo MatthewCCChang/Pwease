@@ -18,7 +18,7 @@ export const auth = betterAuth({
     },
     trustedOrigins: [
         "pwease://",
-        
+        "http://localhost:8081",
         // Development mode - Expo's exp:// scheme with local IP ranges
         ...(process.env.NODE_ENV === "development" ? [
             "exp://",                      // Trust any host of the exp:// scheme

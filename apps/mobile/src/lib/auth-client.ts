@@ -1,9 +1,10 @@
 import { createAuthClient } from "better-auth/react";
 import { expoClient } from "@better-auth/expo/client";
 import * as SecureStore from "expo-secure-store";
+import { router } from "expo-router";
 
 export const authClient = createAuthClient({
-    baseURL: "http://localhost:8787", // Base URL of your Better Auth backend.
+    baseURL: process.env.EXPO_PUBLIC_API_URL, // Base URL of your Better Auth backend.
     plugins: [
         expoClient({
             scheme: "pwease",
@@ -12,14 +13,23 @@ export const authClient = createAuthClient({
         })
     ]
 });
-const signInWithProvider = async (provider:string) => {
-    return await authClient.signIn.social({
+
+export const signInWithProvider = async (provider:string) => {
+    //console.log("received ", provider);
+        const {error} = await authClient.signIn.social({
         provider: provider,
-        callbackURL: "/home",
-    });
+        callbackURL: "http://localhost:8081/home",
+        });
+        console.log("got results");
+        
+        if(error){
+            console.log(error);
+            return
+        }
+    
+    return 
 };
 
 
-export default signInWithProvider;
 
 
