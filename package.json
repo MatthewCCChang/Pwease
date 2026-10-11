@@ -31,5 +31,14 @@
     "eslint": "10.11.0",
     "typescript": "6.0.3",
     "typescript-eslint": "8.71.0"
+  },
+  "dependencies": {
+    "@better-auth/drizzle-adapter": "1.7.7",
+    "@better-auth/expo": "1.7.7",
+    "better-auth": "1.7.7",
+    "expo-constants": "57.0.21",
+    "expo-linking": "57.0.12",
+    "expo-network": "57.0.2",
+    "expo-web-browser": "57.0.3"
   }
 }

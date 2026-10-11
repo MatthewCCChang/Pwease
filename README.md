@@ -14,25 +14,6 @@ database tables, stamp workflows, uploads, and production artwork are **not impl
 
 The existing system Node 20 is too old for this toolchain. Do not bypass the engine check.
 
-### Windows: project-local Node
-
-From the project root in PowerShell:
-
-```powershell
-# Downloads the official Windows x64 archive and verifies its published SHA-256.
-# Run only if .tools does not already contain the pinned version.
-./scripts/setup-node.ps1
-
-# Run this in EACH new PowerShell terminal. It changes PATH for that terminal only.
-. ./scripts/use-node.ps1
-node --version
-npm ci
-```
-
-`.tools` is ignored by Git. The helper does not replace your global Node installation.
-If script execution is restricted, use an approved execution policy or a system
-Node 24 installation. For macOS/Linux, use the version in `.nvmrc` with your Node
-version manager, then run `npm ci`.
 
 ## Run locally
 
