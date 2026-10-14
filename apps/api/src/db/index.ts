@@ -8,7 +8,6 @@ function createDatabase(pool: Pool) {
 
 export type Database = ReturnType<typeof createDatabase>;
 
-// Lazy and request-scoped. The health route never opens a database connection.
 export async function withDatabase<T>(
   env: Pick<Bindings, 'DATABASE_URL'>,
   run: (database: Database) => Promise<T>,
