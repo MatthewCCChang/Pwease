@@ -7,9 +7,10 @@
     "dev": "wrangler dev --ip 0.0.0.0 --port 8787",
     "build": "wrangler deploy --dry-run --outdir dist",
     "typecheck": "tsc --noEmit",
-    "test": "node --import tsx --test test/app.test.ts",
+    "test": "node --import tsx --test test/*.test.ts",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate"
+    "db:migrate": "drizzle-kit migrate",
+    "db:insert": "node --import tsx scripts/db-insert.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "1.1.0",
@@ -19,6 +20,7 @@
   },
   "devDependencies": {
     "@cloudflare/workers-types": "5.20261001.1",
+    "@electric-sql/pglite": "0.5.10",
     "@types/node": "^24.0.0",
     "drizzle-kit": "0.31.11",
     "tsx": "^4.20.0",

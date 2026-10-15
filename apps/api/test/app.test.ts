@@ -20,12 +20,13 @@ test('unknown endpoints return a JSON 404', async () => {
   assert.equal(apiErrorSchema.parse(await response.json()).error.code, 'NOT_FOUND');
 });
 
-test('auth and profile placeholders do not pretend to authenticate', async () => {
-  for (const path of ['/api/auth/get-session', '/api/me']) {
-    const response = await app.request(path);
-    assert.equal(response.status, 501);
-    assert.equal(apiErrorSchema.parse(await response.json()).error.code, 'NOT_IMPLEMENTED');
-  }
+test('profile requires a session and auth reports missing configuration', async () => {
+  const profile = await app.request('/api/me', undefined, {});
+  assert.equal(profile.status, 401);
+  assert.equal(apiErrorSchema.parse(await profile.json()).error.code, 'UNAUTHORIZED');
+  const auth = await app.request('/api/auth/get-session', undefined, {});
+  assert.equal(auth.status, 503);
+  assert.equal(apiErrorSchema.parse(await auth.json()).error.code, 'SERVICE_UNAVAILABLE');
 });
 
 test('unexpected failures return JSON without leaking server details', async () => {

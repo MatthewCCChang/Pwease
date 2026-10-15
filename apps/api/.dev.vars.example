@@ -1,8 +1,11 @@
-# Optional for the skeleton. The health route requires none of these.
-# Copy to .dev.vars when you begin implementing integrations; never commit real values.
+# Required for auth and business routes. Health requires none of these.
+# Copy to .dev.vars for Wrangler, or use .env (do not define both); never commit secrets.
 DATABASE_URL=
 BETTER_AUTH_SECRET=
 BETTER_AUTH_URL=http://localhost:8787
+WEB_ORIGIN=http://localhost:8081
+GOOGLE_WEB_CLIENT_ID=
+# GOOGLE_CLIENT_ID is also accepted as a fallback.
 GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
 APPLE_CLIENT_ID=

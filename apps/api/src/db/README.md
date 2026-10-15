@@ -1,7 +1,7 @@
 # Pwease database schema
 
 `schema.ts` defines tables; importing it does not create tables or connect to Neon.
-It does not yet connect the running Better Auth instance to Drizzle.
+The API now connects Better Auth to these tables through its Drizzle adapter.
 
 ## Identity
 
@@ -38,7 +38,9 @@ Only approved requests have a non-null positive stampsAwarded. Approved/rejected
 requests need reviewedAt; pending/cancelled requests leave it null. CANCELLED
 comes from the existing shared enum; cancellation behavior is not implemented.
 
-The API must still enforce:
+The API routes enforce membership, permissions, proof text, snapshots, and atomic
+stamp allocation. See [route documentation](../routes/README.md) for the implemented
+rules and remaining limits. The full workflow requires:
 
 - Active workspace membership, role permissions and owner-removal rules.
 - Who may approve/redeem, self-approval policy and reviewer adjustment limits.
@@ -58,11 +60,9 @@ Deleting an entire workspace/user requires a deliberate cleanup/anonymization fl
 
 ## Next integration steps
 
-1. Supply these tables to Better Auth's Drizzle adapter using a Worker-compatible
-   database lifetime. Defining the tables alone does not enable persisted login.
-2. Generate and review a migration with `npm run db:generate --workspace=@pwease/api`.
-3. Apply the migration to a development database once DATABASE_URL is available to
+1. Review the existing migration in `apps/api/drizzle`. After future schema changes,
+   generate another migration with `npm run db:generate --workspace=@pwease/api`.
+2. Apply migrations to a development database once DATABASE_URL is available to
    Drizzle Kit. The current drizzle.config.ts does not load .env automatically.
-4. Add session middleware and workspace permission checks before implementing
-   requests and approvals. Test concurrency against PostgreSQL before relying on
-   the allocation workflow.
+3. Configure the Worker auth/database bindings and sign in again to establish a
+   persisted session. Test concurrency against Neon before deploying the workflow.
