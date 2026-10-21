@@ -1,3 +1,4 @@
+import { ProfileMenu } from '../../src/components/ProfileMenu';
 import { router } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeIn, ReduceMotion } from 'react-native-reanimated';
@@ -10,7 +11,7 @@ export default function HomeScreen() {
     <Screen insetTop={false}>
       <SkeletonNotice />
       <Heading>Your cozy corner</Heading>
-      <Button label="Profile / switch workspace · Not implemented" disabled secondary />
+      <ProfileMenu />
       <Placeholder title="Needs your paw" detail="Incoming approvals and their count will appear here once connected." />
       <Placeholder title="Waiting for a paw" detail="Sent requests are a placeholder here. The finished app will hide this section until requests exist." />
       <Animated.View entering={FadeIn.duration(180).reduceMotion(ReduceMotion.System)}>

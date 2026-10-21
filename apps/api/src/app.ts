@@ -4,7 +4,7 @@ import { cors } from 'hono/cors';
 import { apiErrorSchema } from '@pwease/shared';
 import type { ApiEnvironment } from './env';
 import { healthRoutes } from './routes/health';
-import { authRoutes } from './auth';
+import { createAuthRoutes } from './auth';
 import { webOrigin } from './auth/auth';
 import { createUserRoutes, userRoutes } from './routes/users';
 import { createWorkspaceRoutes } from './routes/workspaces';
@@ -32,7 +32,7 @@ export function createApp(deps: RouteDependencies = defaultDependencies) {
     allowHeaders: ['Content-Type'],
   })(c, next));
   app.route('/api', healthRoutes);
-  app.route('/api/auth', authRoutes);
+  app.route('/api/auth', createAuthRoutes(deps.withDatabase));
   app.route('/api', deps === defaultDependencies ? userRoutes : createUserRoutes(deps));
   app.route('/api', createWorkspaceRoutes(deps));
   app.route('/api', createCardRoutes(deps));

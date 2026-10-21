@@ -188,3 +188,54 @@ test('expired and revoked database sessions cannot access business endpoints', a
   await db.delete(schema.session).where(eq(schema.session.userId, 'observer'));
   assert.equal((await request('/me', 'observer')).status, 401);
 });
+
+test('auth routes renew a real session and logout invalidates its signed cookie', async () => {
+  const person = 'logout-test';
+  const token = 'logout-test-token';
+  await db.insert(schema.user).values({ id: person, name: 'Logout Test', email: 'logout@example.test' });
+  const oldExpiry = new Date(Date.now() + 86400000);
+  await db.insert(schema.session).values({
+    id: 'logout-test-session', userId: person, token,
+    createdAt: new Date(Date.now() - 3 * 86400000),
+    updatedAt: new Date(Date.now() - 3 * 86400000), expiresAt: oldExpiry,
+  });
+  const signature = createHmac('sha256', env.BETTER_AUTH_SECRET!).update(token).digest('base64');
+  cookies[person] = 'better-auth.session_token=' + encodeURIComponent(token + '.' + signature);
+
+  const current = await request('/auth/get-session', person);
+  assert.equal(current.status, 200);
+  const payload = await current.json() as { user: { id: string } };
+  assert.equal(payload.user.id, person);
+  assert(current.headers.get('set-cookie')?.includes('better-auth.session_token='));
+  const [renewed] = await db.select().from(schema.session).where(eq(schema.session.token, token));
+  assert(renewed!.expiresAt > oldExpiry);
+
+  const forbidden = await request('/auth/sign-out', person, 'POST', {}, { Origin: 'https://untrusted.example' });
+  assert.equal(forbidden.status, 403);
+  assert.equal((await db.select().from(schema.session).where(eq(schema.session.token, token))).length, 1);
+
+  const logout = await request('/auth/sign-out', person, 'POST', {});
+  assert.equal(logout.status, 200);
+  assert(logout.headers.get('set-cookie')?.includes('Max-Age=0'));
+  assert.equal((await db.select().from(schema.session).where(eq(schema.session.token, token))).length, 0);
+  assert.equal(await (await request('/auth/get-session', person)).json(), null);
+  assert.equal((await request('/me', person)).status, 401);
+  assert.equal((await db.select().from(schema.user).where(eq(schema.user.id, person))).length, 1);
+});
+
+test('auth session lookup rejects expired and unsigned fixture tokens', async () => {
+  await db.insert(schema.session).values({
+    id: 'expired-auth-test', userId: 'earner', token: 'expired-auth-test-token',
+    expiresAt: new Date('2020-01-01T00:00:00Z'),
+  });
+  const token = 'expired-auth-test-token';
+  const signature = createHmac('sha256', env.BETTER_AUTH_SECRET!).update(token).digest('base64');
+  const expired = await request('/auth/get-session', 'earner', 'GET', undefined, {
+    Cookie: 'better-auth.session_token=' + encodeURIComponent(token + '.' + signature),
+  });
+  assert.equal(await expired.json(), null);
+  const unsigned = await request('/auth/get-session', 'earner', 'GET', undefined, {
+    Cookie: 'better-auth.session_token=test-session-earner',
+  });
+  assert.equal(await unsigned.json(), null);
+});

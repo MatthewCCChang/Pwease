@@ -19,6 +19,8 @@ export function createAuth(env: Bindings, db: Database) {
   return betterAuth({
     baseURL: env.BETTER_AUTH_URL, secret: env.BETTER_AUTH_SECRET,
     database: drizzleAdapter(db, { provider: 'pg', schema, transaction: true }),
+    // Renew after one day of activity; expire after seven days without renewal.
+    session: { expiresIn: 60 * 60 * 24 * 7, updateAge: 60 * 60 * 24 },
     socialProviders: googleId && env.GOOGLE_CLIENT_SECRET ? {
       google: { prompt: 'select_account', clientId: googleId, clientSecret: env.GOOGLE_CLIENT_SECRET },
     } : {},
