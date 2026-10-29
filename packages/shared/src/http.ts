@@ -9,7 +9,8 @@ export const healthResponseSchema = z.object({
 
 export const apiErrorSchema = z.object({
   error: z.object({
-    code: z.enum(['NOT_FOUND', 'NOT_IMPLEMENTED', 'INTERNAL_ERROR']),
+    code: z.enum(['NOT_FOUND', 'NOT_IMPLEMENTED', 'INTERNAL_ERROR', 'BAD_REQUEST',
+      'UNAUTHORIZED', 'FORBIDDEN', 'CONFLICT', 'SERVICE_UNAVAILABLE']),
     message: z.string(),
   }),
 });

@@ -207,3 +207,13 @@ export const stampAllocation = pgTable('stamp_allocation', {
   check('stamp_allocation_quantity_positive', sql`${table.stampsAllocated} > 0`),
 ]);
 
+
+export const workspaceInvite = pgTable('workspace_invite', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  workspaceId: uuid('workspace_id').notNull().references(() => workspace.id, { onDelete: 'cascade' }),
+  createdBy: text('created_by').notNull().references(() => user.id, { onDelete: 'cascade' }),
+  codeHash: text('code_hash').notNull().unique(),
+  expiresAt: dateTime('expires_at').notNull(),
+  usedAt: dateTime('used_at'),
+  createdAt: dateTime('created_at').notNull().defaultNow(),
+}, (table) => [index('workspace_invite_workspace_idx').on(table.workspaceId)]);

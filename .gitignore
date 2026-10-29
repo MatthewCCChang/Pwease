@@ -7,6 +7,7 @@ dist/
 coverage/
 *.tsbuildinfo
 *.log
+apps/api/scripts/fixtures/*.local.json
 .env
 .env.*
 !.env.example
@@ -17,3 +18,5 @@ apps/mobile/android/
 apps/mobile/ios/
 .DS_Store
 Thumbs.db
+
+*.jks

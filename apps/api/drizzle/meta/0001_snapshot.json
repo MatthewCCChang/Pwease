@@ -1,0 +1,1356 @@
+{
+  "id": "46f97209-8d1b-4cba-92d0-9a1b9439e698",
+  "prevId": "aa12441b-3bb4-4403-a502-bc729a4b3dfc",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.account": {
+      "name": "account",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "account_id": {
+          "name": "account_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "provider_id": {
+          "name": "provider_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "access_token": {
+          "name": "access_token",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "refresh_token": {
+          "name": "refresh_token",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "id_token": {
+          "name": "id_token",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "access_token_expires_at": {
+          "name": "access_token_expires_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "refresh_token_expires_at": {
+          "name": "refresh_token_expires_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "scope": {
+          "name": "scope",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "password": {
+          "name": "password",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "account_user_idx": {
+          "name": "account_user_idx",
+          "columns": [
+            {
+              "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "account_user_id_user_id_fk": {
+          "name": "account_user_id_user_id_fk",
+          "tableFrom": "account",
+          "tableTo": "user",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "account_provider_identity_unique": {
+          "name": "account_provider_identity_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "provider_id",
+            "account_id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.card_definition": {
+      "name": "card_definition",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "workspace_id": {
+          "name": "workspace_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ask_user_id": {
+          "name": "ask_user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "approve_user_id": {
+          "name": "approve_user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "title": {
+          "name": "title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "category": {
+          "name": "category",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "stamps_needed": {
+          "name": "stamps_needed",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "proof_requirement": {
+          "name": "proof_requirement",
+          "type": "proof_requirement",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'NONE'"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "archived_at": {
+          "name": "archived_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "card_definition_workspace_category_idx": {
+          "name": "card_definition_workspace_category_idx",
+          "columns": [
+            {
+              "expression": "workspace_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "category",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "card_definition_requester_idx": {
+          "name": "card_definition_requester_idx",
+          "columns": [
+            {
+              "expression": "ask_user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "card_definition_approver_idx": {
+          "name": "card_definition_approver_idx",
+          "columns": [
+            {
+              "expression": "approve_user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "card_definition_workspace_id_workspace_id_fk": {
+          "name": "card_definition_workspace_id_workspace_id_fk",
+          "tableFrom": "card_definition",
+          "tableTo": "workspace",
+          "columnsFrom": [
+            "workspace_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        },
+        "card_definition_ask_user_id_user_id_fk": {
+          "name": "card_definition_ask_user_id_user_id_fk",
+          "tableFrom": "card_definition",
+          "tableTo": "user",
+          "columnsFrom": [
+            "ask_user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        },
+        "card_definition_approve_user_id_user_id_fk": {
+          "name": "card_definition_approve_user_id_user_id_fk",
+          "tableFrom": "card_definition",
+          "tableTo": "user",
+          "columnsFrom": [
+            "approve_user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "card_definition_participants_unique": {
+          "name": "card_definition_participants_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "id",
+            "workspace_id",
+            "ask_user_id",
+            "approve_user_id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "card_definition_target_positive": {
+          "name": "card_definition_target_positive",
+          "value": "\"card_definition\".\"stamps_needed\" > 0"
+        },
+        "card_definition_title_nonempty": {
+          "name": "card_definition_title_nonempty",
+          "value": "length(trim(\"card_definition\".\"title\")) > 0"
+        },
+        "card_definition_category_nonempty": {
+          "name": "card_definition_category_nonempty",
+          "value": "length(trim(\"card_definition\".\"category\")) > 0"
+        },
+        "card_definition_archive_date": {
+          "name": "card_definition_archive_date",
+          "value": "\"card_definition\".\"archived_at\" is null or \"card_definition\".\"archived_at\" >= \"card_definition\".\"created_at\""
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.card_instance": {
+      "name": "card_instance",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "card_definition_id": {
+          "name": "card_definition_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "title": {
+          "name": "title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "category": {
+          "name": "category",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "stamps_needed": {
+          "name": "stamps_needed",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "current_stamps": {
+          "name": "current_stamps",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "completed_at": {
+          "name": "completed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "redeemed_at": {
+          "name": "redeemed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "card_instance_definition_created_idx": {
+          "name": "card_instance_definition_created_idx",
+          "columns": [
+            {
+              "expression": "card_definition_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "card_instance_one_open_per_definition": {
+          "name": "card_instance_one_open_per_definition",
+          "columns": [
+            {
+              "expression": "card_definition_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "where": "\"card_instance\".\"completed_at\" is null",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "card_instance_card_definition_id_card_definition_id_fk": {
+          "name": "card_instance_card_definition_id_card_definition_id_fk",
+          "tableFrom": "card_instance",
+          "tableTo": "card_definition",
+          "columnsFrom": [
+            "card_definition_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "card_instance_definition_unique": {
+          "name": "card_instance_definition_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "id",
+            "card_definition_id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "card_instance_target_positive": {
+          "name": "card_instance_target_positive",
+          "value": "\"card_instance\".\"stamps_needed\" > 0"
+        },
+        "card_instance_progress_range": {
+          "name": "card_instance_progress_range",
+          "value": "\"card_instance\".\"current_stamps\" >= 0 and \"card_instance\".\"current_stamps\" <= \"card_instance\".\"stamps_needed\""
+        },
+        "card_instance_completion_matches_progress": {
+          "name": "card_instance_completion_matches_progress",
+          "value": "\n    (\"card_instance\".\"completed_at\" is null and \"card_instance\".\"current_stamps\" < \"card_instance\".\"stamps_needed\") or\n    (\"card_instance\".\"completed_at\" is not null and \"card_instance\".\"current_stamps\" = \"card_instance\".\"stamps_needed\")\n  "
+        },
+        "card_instance_completion_date": {
+          "name": "card_instance_completion_date",
+          "value": "\"card_instance\".\"completed_at\" is null or \"card_instance\".\"completed_at\" >= \"card_instance\".\"created_at\""
+        },
+        "card_instance_redemption_requires_completion": {
+          "name": "card_instance_redemption_requires_completion",
+          "value": "\n    \"card_instance\".\"redeemed_at\" is null or\n    (\"card_instance\".\"completed_at\" is not null and \"card_instance\".\"redeemed_at\" >= \"card_instance\".\"completed_at\")\n  "
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.session": {
+      "name": "session",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "token": {
+          "name": "token",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ip_address": {
+          "name": "ip_address",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "user_agent": {
+          "name": "user_agent",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "session_user_idx": {
+          "name": "session_user_idx",
+          "columns": [
+            {
+              "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "session_user_id_user_id_fk": {
+          "name": "session_user_id_user_id_fk",
+          "tableFrom": "session",
+          "tableTo": "user",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "session_token_unique": {
+          "name": "session_token_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "token"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.stamp_allocation": {
+      "name": "stamp_allocation",
+      "schema": "",
+      "columns": {
+        "stamp_request_id": {
+          "name": "stamp_request_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "card_instance_id": {
+          "name": "card_instance_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "card_definition_id": {
+          "name": "card_definition_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "stamps_allocated": {
+          "name": "stamps_allocated",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "stamp_allocation_instance_idx": {
+          "name": "stamp_allocation_instance_idx",
+          "columns": [
+            {
+              "expression": "card_instance_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "stamp_allocation_request_definition_fk": {
+          "name": "stamp_allocation_request_definition_fk",
+          "tableFrom": "stamp_allocation",
+          "tableTo": "stamp_request",
+          "columnsFrom": [
+            "stamp_request_id",
+            "card_definition_id"
+          ],
+          "columnsTo": [
+            "id",
+            "card_definition_id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        },
+        "stamp_allocation_instance_definition_fk": {
+          "name": "stamp_allocation_instance_definition_fk",
+          "tableFrom": "stamp_allocation",
+          "tableTo": "card_instance",
+          "columnsFrom": [
+            "card_instance_id",
+            "card_definition_id"
+          ],
+          "columnsTo": [
+            "id",
+            "card_definition_id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "stamp_allocation_stamp_request_id_card_instance_id_pk": {
+          "name": "stamp_allocation_stamp_request_id_card_instance_id_pk",
+          "columns": [
+            "stamp_request_id",
+            "card_instance_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "stamp_allocation_quantity_positive": {
+          "name": "stamp_allocation_quantity_positive",
+          "value": "\"stamp_allocation\".\"stamps_allocated\" > 0"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.stamp_request": {
+      "name": "stamp_request",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "workspace_id": {
+          "name": "workspace_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "card_definition_id": {
+          "name": "card_definition_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ask_user_id": {
+          "name": "ask_user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "review_user_id": {
+          "name": "review_user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "title": {
+          "name": "title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "category": {
+          "name": "category",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "proof_requirement": {
+          "name": "proof_requirement",
+          "type": "proof_requirement",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'NONE'"
+        },
+        "stamps_requested": {
+          "name": "stamps_requested",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "stamps_awarded": {
+          "name": "stamps_awarded",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "proof_text": {
+          "name": "proof_text",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "photo_key": {
+          "name": "photo_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "photo_expires_at": {
+          "name": "photo_expires_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status": {
+          "name": "status",
+          "type": "stamp_request_status",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'PENDING'"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "reviewed_at": {
+          "name": "reviewed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "stamp_request_incoming_idx": {
+          "name": "stamp_request_incoming_idx",
+          "columns": [
+            {
+              "expression": "workspace_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "review_user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "status",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "stamp_request_outgoing_idx": {
+          "name": "stamp_request_outgoing_idx",
+          "columns": [
+            {
+              "expression": "workspace_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "ask_user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "status",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "stamp_request_definition_idx": {
+          "name": "stamp_request_definition_idx",
+          "columns": [
+            {
+              "expression": "card_definition_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "stamp_request_photo_expiry_idx": {
+          "name": "stamp_request_photo_expiry_idx",
+          "columns": [
+            {
+              "expression": "photo_expires_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "where": "\"stamp_request\".\"photo_key\" is not null",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "stamp_request_definition_participants_fk": {
+          "name": "stamp_request_definition_participants_fk",
+          "tableFrom": "stamp_request",
+          "tableTo": "card_definition",
+          "columnsFrom": [
+            "card_definition_id",
+            "workspace_id",
+            "ask_user_id",
+            "review_user_id"
+          ],
+          "columnsTo": [
+            "id",
+            "workspace_id",
+            "ask_user_id",
+            "approve_user_id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "stamp_request_definition_unique": {
+          "name": "stamp_request_definition_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "id",
+            "card_definition_id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "stamp_request_title_nonempty": {
+          "name": "stamp_request_title_nonempty",
+          "value": "length(trim(\"stamp_request\".\"title\")) > 0"
+        },
+        "stamp_request_quantity_positive": {
+          "name": "stamp_request_quantity_positive",
+          "value": "\"stamp_request\".\"stamps_requested\" > 0"
+        },
+        "stamp_request_award_matches_status": {
+          "name": "stamp_request_award_matches_status",
+          "value": "\n    (\"stamp_request\".\"status\" = 'APPROVED' and \"stamp_request\".\"stamps_awarded\" is not null and \"stamp_request\".\"stamps_awarded\" > 0) or\n    (\"stamp_request\".\"status\" <> 'APPROVED' and \"stamp_request\".\"stamps_awarded\" is null)\n  "
+        },
+        "stamp_request_review_matches_status": {
+          "name": "stamp_request_review_matches_status",
+          "value": "\n    (\"stamp_request\".\"status\" in ('APPROVED', 'REJECTED') and \"stamp_request\".\"reviewed_at\" is not null) or\n    (\"stamp_request\".\"status\" in ('PENDING', 'CANCELLED') and \"stamp_request\".\"reviewed_at\" is null)\n  "
+        },
+        "stamp_request_review_date": {
+          "name": "stamp_request_review_date",
+          "value": "\"stamp_request\".\"reviewed_at\" is null or \"stamp_request\".\"reviewed_at\" >= \"stamp_request\".\"created_at\""
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.user": {
+      "name": "user",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "email_verified": {
+          "name": "email_verified",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "image": {
+          "name": "image",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "user_email_unique": {
+          "name": "user_email_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "email"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.verification": {
+      "name": "verification",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "identifier": {
+          "name": "identifier",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "value": {
+          "name": "value",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "verification_identifier_idx": {
+          "name": "verification_identifier_idx",
+          "columns": [
+            {
+              "expression": "identifier",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.workspace": {
+      "name": "workspace",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "workspace_name_nonempty": {
+          "name": "workspace_name_nonempty",
+          "value": "length(trim(\"workspace\".\"name\")) > 0"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.workspace_invite": {
+      "name": "workspace_invite",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "workspace_id": {
+          "name": "workspace_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_by": {
+          "name": "created_by",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "code_hash": {
+          "name": "code_hash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "used_at": {
+          "name": "used_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "workspace_invite_workspace_idx": {
+          "name": "workspace_invite_workspace_idx",
+          "columns": [
+            {
+              "expression": "workspace_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "workspace_invite_workspace_id_workspace_id_fk": {
+          "name": "workspace_invite_workspace_id_workspace_id_fk",
+          "tableFrom": "workspace_invite",
+          "tableTo": "workspace",
+          "columnsFrom": [
+            "workspace_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "workspace_invite_created_by_user_id_fk": {
+          "name": "workspace_invite_created_by_user_id_fk",
+          "tableFrom": "workspace_invite",
+          "tableTo": "user",
+          "columnsFrom": [
+            "created_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "workspace_invite_code_hash_unique": {
+          "name": "workspace_invite_code_hash_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "code_hash"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.workspace_member": {
+      "name": "workspace_member",
+      "schema": "",
+      "columns": {
+        "workspace_id": {
+          "name": "workspace_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "role": {
+          "name": "role",
+          "type": "workspace_role",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'MEMBER'"
+        },
+        "joined_at": {
+          "name": "joined_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "workspace_member_user_idx": {
+          "name": "workspace_member_user_idx",
+          "columns": [
+            {
+              "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "workspace_member_workspace_id_workspace_id_fk": {
+          "name": "workspace_member_workspace_id_workspace_id_fk",
+          "tableFrom": "workspace_member",
+          "tableTo": "workspace",
+          "columnsFrom": [
+            "workspace_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        },
+        "workspace_member_user_id_user_id_fk": {
+          "name": "workspace_member_user_id_user_id_fk",
+          "tableFrom": "workspace_member",
+          "tableTo": "user",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "workspace_member_workspace_id_user_id_pk": {
+          "name": "workspace_member_workspace_id_user_id_pk",
+          "columns": [
+            "workspace_id",
+            "user_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {
+    "public.proof_requirement": {
+      "name": "proof_requirement",
+      "schema": "public",
+      "values": [
+        "NONE",
+        "TEXT",
+        "PHOTO",
+        "TEXT_OR_PHOTO"
+      ]
+    },
+    "public.stamp_request_status": {
+      "name": "stamp_request_status",
+      "schema": "public",
+      "values": [
+        "PENDING",
+        "APPROVED",
+        "REJECTED",
+        "CANCELLED"
+      ]
+    },
+    "public.workspace_role": {
+      "name": "workspace_role",
+      "schema": "public",
+      "values": [
+        "OWNER",
+        "MEMBER"
+      ]
+    }
+  },
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

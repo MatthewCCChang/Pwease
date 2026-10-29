@@ -1,3 +1,4 @@
+import { WorkspaceManager } from './WorkspaceManager';
 import { useState } from 'react';
 import { Modal } from 'react-native';
 import { router } from 'expo-router';
@@ -40,7 +41,7 @@ function ProfileDetails({ close }: { close: () => void }) {
       <Button label="Refresh session" secondary disabled={busy || isPending} onPress={() => { void refetch(); }} />
       {data && <Button label={busy ? 'Signing out...' : 'Log out'} disabled={busy} onPress={() => { void signOut(); }} />}
       {!isPending && !error && !data && <Button label="Go to sign-in" onPress={() => { close(); router.replace('/'); }} />}
-      <Button label="Switch workspace - Not implemented" disabled secondary />
+      {data && <WorkspaceManager />}
       <Button label="Close" secondary disabled={busy} onPress={close} />
     </Screen>
   );

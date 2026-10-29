@@ -24,7 +24,7 @@ export function createWorkspaceRoutes(deps: RouteDependencies) {
       await tx.insert(workspaceMember).values({ workspaceId: created.id, userId, role: 'OWNER' });
       return created;
     });
-    return c.json(result, 201);
+    return c.json({ ...result, role: 'OWNER' as const }, 201);
   }));
   routes.get('/workspaces/:id', protectedHandler(deps, async (c, db, userId) => {
     const workspaceId = id(c);

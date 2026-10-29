@@ -26,6 +26,7 @@ const app = createApp({
 const cookies: Record<string, string> = {};
 before(async () => {
   await pg.exec(await readFile(new URL('../drizzle/0000_faithful_thunderbolt_ross.sql', import.meta.url), 'utf8'));
+  await pg.exec(await readFile(new URL('../drizzle/0001_workspace_invites.sql', import.meta.url), 'utf8'));
   for (const person of ['earner', 'reviewer', 'outsider', 'observer']) {
     await db.insert(schema.user).values({ id: person, name: person, email: `${person}@example.test` });
     const token = `test-session-${person}`;
@@ -238,4 +239,51 @@ test('auth session lookup rejects expired and unsigned fixture tokens', async ()
     Cookie: 'better-auth.session_token=test-session-earner',
   });
   assert.equal(await unsigned.json(), null);
+});
+
+test('workspaces require membership; invitation codes grant one membership and cannot be reused', async () => {
+  for (const person of ['invite-owner', 'invite-guest', 'invite-stranger']) {
+    await db.insert(schema.user).values({ id: person, name: person, email: person + '@example.test' });
+    const token = 'token-' + person;
+    await db.insert(schema.session).values({
+      id: 'session-' + person, userId: person, token, expiresAt: new Date(Date.now() + 86400000),
+    });
+    const signature = createHmac('sha256', env.BETTER_AUTH_SECRET!).update(token).digest('base64');
+    cookies[person] = 'better-auth.session_token=' + encodeURIComponent(token + '.' + signature);
+  }
+  const created = await request('/workspaces', 'invite-owner', 'POST', { name: 'Invite only' });
+  assert.equal(created.status, 201);
+  const space = await created.json() as { id: string; role: string };
+  assert.equal(space.role, 'OWNER');
+  for (const suffix of ['', '/members', '/cards', '/requests', '/stats']) {
+    assert.equal((await request('/workspaces/' + space.id + suffix, 'invite-guest')).status, 404);
+  }
+  assert.deepEqual(await (await request('/workspaces', 'invite-guest')).json(), []);
+  assert.equal((await request('/workspace-invites', 'invite-guest', 'POST', { workspaceId: space.id })).status, 404);
+  assert.equal((await request('/workspace-invites/' + 'f'.repeat(32) + '/accept', 'invite-guest', 'POST')).status, 404);
+  assert.equal((await request('/workspace-invites/invalid/accept', 'invite-guest', 'POST')).status, 400);
+  assert.equal((await request('/workspace-invites', 'unknown', 'POST', { workspaceId: space.id })).status, 401);
+
+  const issued = await request('/workspace-invites', 'invite-owner', 'POST', { workspaceId: space.id });
+  assert.equal(issued.status, 201);
+  const invite = await issued.json() as { code: string };
+  const [stored] = await db.select().from(schema.workspaceInvite).where(eq(schema.workspaceInvite.workspaceId, space.id));
+  assert.notEqual(stored!.codeHash, invite.code);
+  assert.equal((await request('/workspace-invites/' + invite.code + '/accept', 'invite-owner', 'POST')).status, 200);
+  const joined = await request('/workspace-invites/' + invite.code + '/accept', 'invite-guest', 'POST');
+  assert.equal(joined.status, 200);
+  assert.equal((await joined.json() as { role: string }).role, 'MEMBER');
+  assert.equal((await request('/workspaces/' + space.id, 'invite-guest')).status, 200);
+  assert.equal((await request('/workspace-invites', 'invite-guest', 'POST', { workspaceId: space.id })).status, 403);
+  assert.equal((await request('/workspace-invites/' + invite.code + '/accept', 'invite-stranger', 'POST')).status, 404);
+
+  const expiring = await request('/workspace-invites', 'invite-owner', 'POST', { workspaceId: space.id });
+  const expiredCode = (await expiring.json() as { code: string }).code;
+  await db.update(schema.workspaceInvite).set({ expiresAt: new Date('2020-01-01') })
+    .where(eq(schema.workspaceInvite.workspaceId, space.id));
+  assert.equal((await request('/workspace-invites/' + expiredCode + '/accept', 'invite-stranger', 'POST')).status, 404);
+  assert.equal((await request('/workspaces/' + space.id + '/members/invite-guest', 'invite-owner', 'DELETE')).status, 204);
+  assert.equal((await request('/workspaces/' + space.id, 'invite-guest')).status, 404);
+  assert.deepEqual(await (await request('/workspaces', 'invite-guest')).json(), []);
+  assert.equal((await request('/workspace-invites/' + invite.code + '/accept', 'invite-guest', 'POST')).status, 404);
 });

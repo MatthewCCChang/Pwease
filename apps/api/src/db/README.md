@@ -28,7 +28,7 @@ The API now connects Better Auth to these tables through its Drizzle adapter.
   three to the next card.
 
 Categories remain text identifiers such as `health`; color palettes are presentation
-choices. No category, invitation or reward model has been added yet.
+choices. workspaceInvite stores hashed, single-use invitation codes. No category or reward model has been added yet.
 
 ## Constraints and service responsibilities
 

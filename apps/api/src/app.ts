@@ -1,3 +1,4 @@
+import { createInviteRoutes } from './routes/invites';
 import { Hono } from 'hono';
 import type { ErrorHandler } from 'hono';
 import { cors } from 'hono/cors';
@@ -35,6 +36,7 @@ export function createApp(deps: RouteDependencies = defaultDependencies) {
   app.route('/api/auth', createAuthRoutes(deps.withDatabase));
   app.route('/api', deps === defaultDependencies ? userRoutes : createUserRoutes(deps));
   app.route('/api', createWorkspaceRoutes(deps));
+  app.route('/api', createInviteRoutes(deps));
   app.route('/api', createCardRoutes(deps));
   app.route('/api', createStampRequestRoutes(deps));
   app.notFound((c) => c.json(apiErrorSchema.parse({ error: { code: 'NOT_FOUND', message: 'This endpoint does not exist.' } }), 404));
