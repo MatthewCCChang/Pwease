@@ -1,14 +1,16 @@
 import { Pool } from '@neondatabase/serverless';
 import { drizzle } from 'drizzle-orm/neon-serverless';
 import type { Bindings } from '../env';
+import * as schema from './schema';
 
 function createDatabase(pool: Pool) {
-  return drizzle({ client: pool });
+  return drizzle({ client: pool, schema });
 }
 
 export type Database = ReturnType<typeof createDatabase>;
+export type Transaction = Parameters<Parameters<Database['transaction']>[0]>[0];
+export type QueryDatabase = Database | Transaction;
 
-// Lazy and request-scoped. The health route never opens a database connection.
 export async function withDatabase<T>(
   env: Pick<Bindings, 'DATABASE_URL'>,
   run: (database: Database) => Promise<T>,

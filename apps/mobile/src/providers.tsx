@@ -1,3 +1,4 @@
+import { WorkspaceProvider } from './components/WorkspaceProvider';
 import { useState } from 'react';
 import type { PropsWithChildren } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -9,5 +10,5 @@ export function Providers({ children }: PropsWithChildren) {
       mutations: { retry: false },
     },
   }));
-  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
+  return <QueryClientProvider client={queryClient}><WorkspaceProvider>{children}</WorkspaceProvider></QueryClientProvider>;
 }

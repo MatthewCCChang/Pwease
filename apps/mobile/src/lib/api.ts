@@ -1,3 +1,5 @@
+import { Platform } from 'react-native';
+import { authClient } from './auth-client';
 import { apiErrorSchema, healthResponseSchema } from '@pwease/shared';
 import type { z } from 'zod';
 import { config } from '../config';
@@ -9,12 +11,22 @@ export class ApiError extends Error {
   }
 }
 
-export async function apiRequest<T>(path: string, schema: z.ZodType<T>): Promise<T> {
+export async function apiRequest<T>(path: string, schema: z.ZodType<T>, options: { method?: 'GET' | 'POST'; body?: unknown; signal?: AbortSignal } = {}): Promise<T> {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 15_000);
+  const abort = () => controller.abort();
+  options.signal?.addEventListener('abort', abort);
+  if (options.signal?.aborted) controller.abort();
   try {
     const response = await fetch(`${config.apiUrl}${path}`, {
-      headers: { Accept: 'application/json' },
+      method: options.method ?? 'GET',
+      credentials: Platform.OS === 'web' ? 'include' : 'omit',
+      headers: {
+        Accept: 'application/json',
+        ...(options.body === undefined ? {} : { 'Content-Type': 'application/json' }),
+        ...(Platform.OS === 'web' ? {} : { Cookie: await authClient.getCookie() }),
+      },
+      ...(options.body === undefined ? {} : { body: JSON.stringify(options.body) }),
       signal: controller.signal,
     });
     const body: unknown = await response.json();
@@ -32,10 +44,9 @@ export async function apiRequest<T>(path: string, schema: z.ZodType<T>): Promise
     throw error;
   } finally {
     clearTimeout(timeout);
+    options.signal?.removeEventListener('abort', abort);
   }
 }
 
 export const getHealth = () => apiRequest('/api/health', healthResponseSchema);
 
-// Future authenticated calls must attach Better Auth's session cookie here.
-// This skeleton deliberately has no session, fake identity, or secret credentials.

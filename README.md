@@ -1,9 +1,12 @@
 # Pwease
 
-A mobile and serverless API **skeleton**, ready for small daily implementation steps.
+A mobile shell and serverless API, built in small daily implementation steps.
 The welcome screen, Home / Approved / Completed navigation, request modal, color
-tokens, and API health check work without cloud credentials. Authentication,
-database tables, stamp workflows, uploads, and production artwork are **not implemented**.
+tokens, and API health check work without cloud credentials. The API now includes
+database-backed Better Auth, workspaces, cards, stamp requests, approvals and redemption.
+See [API routes](apps/api/src/routes/README.md) for setup, inputs and remaining limits.
+The mobile business screens are not yet wired to these endpoints. Invitations,
+uploads and production artwork remain unimplemented.
 
 ## Requirements
 
@@ -113,12 +116,12 @@ apps/
     app.config.ts           Expo native plugins and placeholder app identifiers
     eas.json                Development, preview, and production profiles
   api/
-    src/auth/               Explicit 501 boundary for future Better Auth
-    src/db/                 Lazy request-scoped Neon helper; empty schema
+    src/auth/               Better Auth with a request-scoped Drizzle adapter
+    src/db/                 Neon helper and auth/domain tables
     src/storage/            Future private R2 binding boundary
-    src/routes/             Health and future business routers
-    test/                   API contract and failure smoke tests
-    drizzle.config.ts       Migration tooling only; no migrations exist
+    src/routes/             Health, users, workspaces, cards and stamp requests
+    test/                   API smoke tests and local PostgreSQL route tests
+    drizzle.config.ts       Migration tooling; reviewed SQL lives in drizzle/
     wrangler.jsonc          Local Worker configuration
 packages/
   shared/src/               Client-safe Zod contracts and domain enums
@@ -139,14 +142,14 @@ package. There are no copied server environment variables in the Expo config.
 | `PROOF_IMAGES` in Wrangler | Future private R2 bucket binding; no access keys in the app |
 
 All real `.env` and `.dev.vars` files are ignored. Keep credentials server-side;
-`EXPO_PUBLIC_*` values are public by definition. Better Auth is an integration
-boundary only: this skeleton does not configure it, persist sessions, or generate
-its tables. SecureStore's native plugin is configured but no credentials are saved.
+`EXPO_PUBLIC_*` values are public by definition. Better Auth requires its server
+secret, backend URL, provider credentials and a migrated database. Set WEB_ORIGIN
+to the web frontend origin for CORS and authentication. See the API route guide.
 
 The database helper connects only when called and closes the pool after that
-request. No current endpoint calls it. The Drizzle schema is empty: **do not run
-migrations yet**. When tables are intentionally added, pass the connection string
-through the terminal environment; the CLI does not automatically load the example:
+request. Auth and business endpoints use it; health does not. Pass the database
+connection string through the terminal environment for Drizzle Kit; the current
+CLI configuration does not automatically load .env:
 
 ```powershell
 # Set DATABASE_URL locally through your preferred secret-management method.
@@ -155,8 +158,8 @@ npm run db:migrate --workspace=@pwease/api
 ```
 
 The health endpoint is liveness only, not proof of database/auth/storage readiness.
-Unknown routes return a JSON 404. `/api/me` and `/api/auth/*` return a JSON 501;
-neither endpoint provides fake authentication or account data. Unexpected errors
+Unknown routes return a JSON 404. Business routes require a valid session (401
+otherwise), and missing integration configuration returns 503. Unexpected errors
 return a generic JSON 500 without exposing exception details.
 
 ## Verify the skeleton
@@ -170,7 +173,7 @@ npm run bundle:mobile
 npm run build:api
 ```
 
-- `test:api`: in-process Hono smoke tests; no cloud account or network needed.
+- `test:api`: Hono smoke tests and in-memory PostgreSQL route tests; no cloud account or network needed.
 - `check:expo`: checks installed native dependency versions against the Expo SDK.
 - `bundle:mobile`: exports **both iOS and Android** Metro bundles, not signed binaries.
 - `build:api`: Wrangler dry run; creates local output without deploying anything.
@@ -181,9 +184,9 @@ Do not treat successful bundling as physical-device or OAuth validation.
 ## Next small milestones
 
 1. Choose permanent native app identifiers, link an EAS project, and create development builds.
-2. Implement Better Auth, Google/Apple configuration, and SecureStore-backed sessions.
-3. Add reviewed Drizzle tables and migrations for workspaces and card proposals.
-4. Implement transaction-safe stamp allocation and participant authorization.
+2. Verify persisted Google sign-in on devices and add Apple configuration.
+3. Add card proposals.
+4. Verify concurrent approvals in the Worker/Neon runtime and wire the mobile screens.
 5. Build the selected screens and illustration assets, followed by private proof uploads.
 
 The selected visual direction is A + D1, E1, F1, G2 with G1's outside photo label,
@@ -192,3 +195,5 @@ component is only a placeholder for the future layered, reduced-motion-aware loa
 
 No provisioning, sign-in, migration, image generation, or deployment is performed
 by the default development commands.
+
+Workspace creation, joining by invitation, and switching are connected in Home > Profile. Apply the invitation migration before joining; see [workspace setup and testing](apps/api/scripts/WORKSPACES.md).

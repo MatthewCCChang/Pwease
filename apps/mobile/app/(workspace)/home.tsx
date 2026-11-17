@@ -1,3 +1,5 @@
+import { useWorkspaces } from '../../src/components/WorkspaceProvider';
+import { ProfileMenu } from '../../src/components/ProfileMenu';
 import { router } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeIn, ReduceMotion } from 'react-native-reanimated';
@@ -6,11 +8,15 @@ import { Button, Copy, Heading, Panel, Placeholder, Screen, SkeletonNotice } fro
 import { categoryPalettes, colors } from '../../src/theme';
 
 export default function HomeScreen() {
+  const { active, loading, error } = useWorkspaces();
   return (
     <Screen insetTop={false}>
       <SkeletonNotice />
-      <Heading>Your cozy corner</Heading>
-      <Button label="Profile / switch workspace · Not implemented" disabled secondary />
+      <Heading>{active ? 'Welcome to workspace ' + active.name : 'Your cozy corner'}</Heading>
+      {loading && <Copy>Loading your workspace...</Copy>}
+      {error && <Copy>Workspace unavailable. Open Profile to refresh or switch workspaces.</Copy>}
+      {!active && !loading && !error && <Copy>Open Profile to sign in, create a workspace, or join with an invitation code.</Copy>}
+      <ProfileMenu />
       <Placeholder title="Needs your paw" detail="Incoming approvals and their count will appear here once connected." />
       <Placeholder title="Waiting for a paw" detail="Sent requests are a placeholder here. The finished app will hide this section until requests exist." />
       <Animated.View entering={FadeIn.duration(180).reduceMotion(ReduceMotion.System)}>
