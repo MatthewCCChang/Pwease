@@ -28,9 +28,13 @@ export function createWorkspaceRoutes(deps: RouteDependencies) {
   }));
   routes.get('/workspaces/:id', protectedHandler(deps, async (c, db, userId) => {
     const workspaceId = id(c);
-    const member = await membership(db, workspaceId, userId);
-    const [row] = await db.select().from(workspace).where(eq(workspace.id, workspaceId));
-    return c.json({ ...row, role: member.role });
+    const [row] = await db.select({
+      id: workspace.id, name: workspace.name, createdAt: workspace.createdAt, role: workspaceMember.role,
+    }).from(workspace).innerJoin(workspaceMember, and(
+      eq(workspaceMember.workspaceId, workspace.id), eq(workspaceMember.userId, userId),
+    )).where(eq(workspace.id, workspaceId));
+    if (!row) fail(404, 'NOT_FOUND', 'Workspace not found.');
+    return c.json(row);
   }));
   routes.get('/workspaces/:id/members', protectedHandler(deps, async (c, db, userId) => {
     const workspaceId = id(c);

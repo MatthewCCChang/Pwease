@@ -20,6 +20,13 @@ test('unknown endpoints return a JSON 404', async () => {
   assert.equal(apiErrorSchema.parse(await response.json()).error.code, 'NOT_FOUND');
 });
 
+test('database readiness reports missing configuration without opening a connection', async () => {
+  const response = await app.request('/api/db', undefined, {});
+  assert.equal(response.status, 503);
+  assert.equal(response.headers.get('cache-control'), 'no-store');
+  assert.equal(apiErrorSchema.parse(await response.json()).error.code, 'SERVICE_UNAVAILABLE');
+});
+
 test('profile requires a session and auth reports missing configuration', async () => {
   const profile = await app.request('/api/me', undefined, {});
   assert.equal(profile.status, 401);

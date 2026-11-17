@@ -13,6 +13,7 @@ type WorkspaceState = {
   loading: boolean;
   error: string | null;
   select: (id: string) => Promise<void>;
+  activate: (workspace: Workspace) => void;
   refresh: () => Promise<void>;
 };
 const WorkspaceContext = createContext<WorkspaceState | null>(null);
@@ -44,12 +45,18 @@ function SignedInWorkspaces({ children, userId }: PropsWithChildren<{ userId?: s
     await client.invalidateQueries({ queryKey: ['workspaces', userId] });
     await client.invalidateQueries({ queryKey: ['workspace', userId] });
   }
+  function activate(space: Workspace) {
+    client.setQueryData(['workspace', userId, space.id], space);
+    client.setQueryData<Workspace[]>(['workspaces', userId], (current = []) => [
+      space,
+      ...current.filter((item) => item.id !== space.id),
+    ]);
+    setSelected(space.id);
+  }
   async function select(id: string) {
     // Recheck membership even when the list is cached.
     const space = await apiRequest('/api/workspaces/' + id, workspaceResponseSchema);
-    client.setQueryData(['workspace', userId, id], space);
-    setSelected(id);
-    await client.invalidateQueries({ queryKey: ['workspaces', userId] });
+    activate(space);
   }
   return (
     <WorkspaceContext.Provider value={{
@@ -57,7 +64,7 @@ function SignedInWorkspaces({ children, userId }: PropsWithChildren<{ userId?: s
       active: userId && !current.isError ? current.data ?? null : null,
       loading: !!userId && (list.isPending || (!!activeId && current.isPending)),
       error: list.error?.message ?? current.error?.message ?? null,
-      select, refresh,
+      select, activate, refresh,
     }}>
       {children}
     </WorkspaceContext.Provider>

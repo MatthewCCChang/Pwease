@@ -6,6 +6,7 @@ import { after, before, test } from 'node:test';
 import { PGlite } from '@electric-sql/pglite';
 import { drizzle } from 'drizzle-orm/pglite';
 import { and, eq } from 'drizzle-orm';
+import { databaseHealthResponseSchema } from '@pwease/shared';
 import { createApp } from '../src/app';
 import type { Database } from '../src/db';
 import * as schema from '../src/db/schema';
@@ -46,6 +47,16 @@ function request(path: string, person = 'earner', method = 'GET', input?: unknow
     ...(input === undefined ? {} : { body: JSON.stringify(input) }),
   }, env);
 }
+
+test('database readiness executes a query against the configured database', async () => {
+  const response = await request('/db');
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('cache-control'), 'no-store');
+  assert.deepEqual(databaseHealthResponseSchema.parse(await response.json()), {
+    status: 'ok', service: 'pwease-db', version: '0.1.0',
+  });
+});
+
 async function workspace() {
   const response = await request('/workspaces', 'earner', 'POST', { name: 'Test workspace' });
   assert.equal(response.status, 201, await response.clone().text());

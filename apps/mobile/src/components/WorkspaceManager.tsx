@@ -7,7 +7,7 @@ import { Button, Copy, Panel } from './ui';
 import { useWorkspaces } from './WorkspaceProvider';
 
 export function WorkspaceManager() {
-  const { workspaces, active, loading, error, select, refresh } = useWorkspaces();
+  const { workspaces, active, loading, error, select, activate, refresh } = useWorkspaces();
   const [name, setName] = useState('');
   const [code, setCode] = useState('');
   const [invite, setInvite] = useState<{ code: string; expiresAt: string; workspaceId: string } | null>(null);
@@ -39,7 +39,7 @@ export function WorkspaceManager() {
         if (!input.success) throw new Error('Enter a workspace name between 1 and 120 characters.');
         const space = await apiRequest('/api/workspaces', workspaceResponseSchema, { method: 'POST', body: input.data });
         setName('');
-        await select(space.id);
+        activate(space);
         setMessage('Welcome to workspace ' + space.name + '!');
       }); }} />
       <TextInput accessibilityLabel="Invitation code" placeholder="Paste invitation code" placeholderTextColor={colors.muted}
@@ -49,7 +49,7 @@ export function WorkspaceManager() {
         if (!parsed.success) throw new Error('Paste the complete 32-character invitation code.');
         const space = await apiRequest('/api/workspace-invites/' + parsed.data + '/accept', workspaceResponseSchema, { method: 'POST' });
         setCode('');
-        await select(space.id);
+        activate(space);
         setMessage('Welcome to workspace ' + space.name + '!');
       }); }} />
       {active?.role === 'OWNER' && <>

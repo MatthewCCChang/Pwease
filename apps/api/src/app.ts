@@ -4,7 +4,7 @@ import type { ErrorHandler } from 'hono';
 import { cors } from 'hono/cors';
 import { apiErrorSchema } from '@pwease/shared';
 import type { ApiEnvironment } from './env';
-import { healthRoutes } from './routes/health';
+import { createHealthRoutes } from './routes/health';
 import { createAuthRoutes } from './auth';
 import { webOrigin } from './auth/auth';
 import { createUserRoutes, userRoutes } from './routes/users';
@@ -32,7 +32,7 @@ export function createApp(deps: RouteDependencies = defaultDependencies) {
     allowMethods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
     allowHeaders: ['Content-Type'],
   })(c, next));
-  app.route('/api', healthRoutes);
+  app.route('/api', createHealthRoutes(deps.withDatabase));
   app.route('/api/auth', createAuthRoutes(deps.withDatabase));
   app.route('/api', deps === defaultDependencies ? userRoutes : createUserRoutes(deps));
   app.route('/api', createWorkspaceRoutes(deps));
